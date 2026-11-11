@@ -88,8 +88,16 @@ export const InspectDataTab = memo(function InspectDataTab({
   // The join resolves asynchronously, so only use a result computed from the current data
   const transformedData = !data ? [] : shouldJoin && joined?.input === data ? joined.frames : data;
 
+  // Applying/removing panel transformations changes the set of frames, so the previous
+  // frame selection may no longer exist; reset it.
+  useEffect(() => {
+    setDataFrameIndex(0);
+    setSelectedDataFrame(0);
+    setTransformId(DataTransformerID.noop);
+  }, [options.withTransforms]);
+
   const exportCsv = (dataFrames: DataFrame[]) => {
-    const dataFrame = dataFrames[dataFrameIndex];
+    const dataFrame = dataFrames[dataFrameIndex] ?? dataFrames[0];
 
     downloadDataFrameAsCsv(dataFrame, dataName, {}, transformId, excelCompatibilityMode);
   };
